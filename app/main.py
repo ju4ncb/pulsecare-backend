@@ -181,16 +181,38 @@ def seed_synthetic_data(count: int = 90, seed: int = 42) -> HTMLResponse:
     from app.models.wellbeing import WellbeingEntry
     from app.core.database import SessionLocal
     from scripts.seed_synthetic_data import generate_synthetic_payloads
-    from fastapi.testclient import TestClient
-
-    client = TestClient(app)
+    from app.core.database import SessionLocal
+    from app.services.wellbeing_service import create_wellbeing_entry_raw, build_and_store_model_input
+    from app.services.label_service import create_risk_label
+    from app.schemas.label import RiskLabelCreate
 
     payloads = generate_synthetic_payloads(count=count, seed=seed)
     posts = 0
-    for payload in payloads:
-        resp = client.post("/api/wellbeing/entries/import", json=payload)
-        if resp.status_code == 201:
+
+    db = SessionLocal()
+    try:
+        for payload in payloads:
+            entry = create_wellbeing_entry_raw(db, payload)
+            try:
+                build_and_store_model_input(db, entry)
+            except Exception:
+                # non-fatal if snapshot build fails
+                db.rollback()
+
+            if "risk_level" in payload:
+                rl = RiskLabelCreate(
+                    risk_level=int(payload["risk_level"]),
+                    label_source=payload.get("label_source", "synthetic_seed"),
+                    label_note=payload.get("label_note", "Generado por seed"),
+                )
+                try:
+                    create_risk_label(db, entry.id, rl)
+                except Exception:
+                    db.rollback()
+
             posts += 1
+    finally:
+        db.close()
 
     db = SessionLocal()
     try:

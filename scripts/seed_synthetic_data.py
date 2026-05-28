@@ -181,7 +181,10 @@ def generate_synthetic_payloads(count: int, seed: int) -> list[dict]:
                     "trend_7d": float(round(values["trend_7d"], 2)),
                     "trend_14d": float(round(values["trend_14d"], 2)),
                     "is_synthetic": True,
-                    "recorded_at": recorded_at.isoformat(),
+                    "recorded_at": recorded_at,
+                    "risk_level": int(values["risk_level"]),
+                    "label_source": "synthetic_seed",
+                    "label_note": "Generado por script de datos sinteticos",
                 }
             )
 
