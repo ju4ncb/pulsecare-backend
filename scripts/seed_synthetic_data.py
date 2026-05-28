@@ -47,6 +47,7 @@ def ensure_synthetic_user(session, student_role: Role) -> User:
 
     user = User(
         email=SYNTHETIC_EMAIL,
+        name="Synthetic User",
         hashed_password=get_password_hash("synthetic-password"),
         id_role=student_role.id,
     )
@@ -143,6 +144,51 @@ def seed_synthetic_data(count: int, seed: int) -> None:
         print(f"Se insertaron {count} registros sinteticos para {user.email}")
     finally:
         session.close()
+
+
+def generate_synthetic_payloads(count: int, seed: int) -> list[dict]:
+    """Generate synthetic payload dicts without inserting into the DB.
+
+    These payloads match the WellbeingEntryImport schema expected by the
+    `/api/wellbeing/entries/import` endpoint.
+    """
+    init_db()
+    rng = random.Random(seed)
+    payloads: list[dict] = []
+
+    # use same synthetic user email to maintain consistency
+    session = SessionLocal()
+    try:
+        student_role, _ = ensure_roles(session)
+        user = ensure_synthetic_user(session, student_role)
+
+        start_date = datetime.now(UTC) - timedelta(days=count - 1)
+
+        for index in range(count):
+            phase = index % 3
+            values = generate_phase_values(phase, rng)
+            recorded_at = start_date + timedelta(days=index)
+
+            payloads.append(
+                {
+                    "user_id": user.id,
+                    "mood_score": int(round(values["mood_score"])),
+                    "sleep_hours": float(round(values["sleep_hours"], 1)),
+                    "academic_load": int(round(values["academic_load"])),
+                    "energy_fatigue": int(round(values["energy_fatigue"])),
+                    "registration_regular": int(round(values["registration_regular"])),
+                    "recent_change_vs_average": float(round(values["recent_change_vs_average"], 2)),
+                    "trend_7d": float(round(values["trend_7d"], 2)),
+                    "trend_14d": float(round(values["trend_14d"], 2)),
+                    "is_synthetic": True,
+                    "recorded_at": recorded_at.isoformat(),
+                }
+            )
+
+    finally:
+        session.close()
+
+    return payloads
 
 
 def parse_args() -> argparse.Namespace:

@@ -8,8 +8,10 @@ from app.models.user import User
 from app.models.wellbeing import WellbeingEntry
 from app.schemas.label import RiskLabelCreate, RiskLabelRead
 from app.schemas.wellbeing import ModelInputSnapshotRead, WellbeingEntryCreate, WellbeingEntryRead
+from app.schemas.wellbeing import ModelInputSnapshotRead, WellbeingEntryCreate, WellbeingEntryRead, WellbeingEntryImport
 from app.services.label_service import create_risk_label
-from app.services.wellbeing_service import build_and_store_model_input, create_wellbeing_entry
+from app.services.wellbeing_service import build_and_store_model_input, create_wellbeing_entry, create_wellbeing_entry_raw
+from app.core.security import is_admin
 
 router = APIRouter(prefix="/wellbeing", tags=["wellbeing"])
 
@@ -21,6 +23,19 @@ def register_wellbeing_entry(
     current_user: User = Depends(get_current_user),
 ) -> WellbeingEntry:
     return create_wellbeing_entry(db, current_user, payload)
+
+@router.post("/entries/import", response_model=WellbeingEntryRead, status_code=status.HTTP_201_CREATED)
+def import_wellbeing_entry(
+    payload: WellbeingEntryImport,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> WellbeingEntry:
+    # Only admins may import arbitrary entries for any user
+    if not is_admin(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required to import entries")
+
+    entry = create_wellbeing_entry_raw(db, payload.model_dump())
+    return entry
 
 
 @router.post("/entries/{entry_id}/model-input", response_model=ModelInputSnapshotRead, status_code=status.HTTP_201_CREATED)

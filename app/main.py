@@ -180,9 +180,17 @@ def manage_synthetic_data() -> HTMLResponse:
 def seed_synthetic_data(count: int = 90, seed: int = 42) -> HTMLResponse:
     from app.models.wellbeing import WellbeingEntry
     from app.core.database import SessionLocal
-    from scripts.seed_synthetic_data import seed_synthetic_data as seed_records
+    from scripts.seed_synthetic_data import generate_synthetic_payloads
+    from fastapi.testclient import TestClient
 
-    seed_records(count=count, seed=seed)
+    client = TestClient(app)
+
+    payloads = generate_synthetic_payloads(count=count, seed=seed)
+    posts = 0
+    for payload in payloads:
+        resp = client.post("/api/wellbeing/entries/import", json=payload)
+        if resp.status_code == 201:
+            posts += 1
 
     db = SessionLocal()
     try:
@@ -209,7 +217,7 @@ def seed_synthetic_data(count: int = 90, seed: int = 42) -> HTMLResponse:
 
     return _render_synthetic_entries_page(
         synthetic_entries,
-        message=f"Se insertaron {count} registros sintéticos usando seed {seed}.",
+        message=f"Se insertaron {posts} de {count} registros sintéticos usando seed {seed}.",
     )
 
 

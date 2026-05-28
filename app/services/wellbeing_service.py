@@ -98,3 +98,24 @@ def build_and_store_model_input(db: Session, entry: WellbeingEntry) -> ModelInpu
     db.commit()
     db.refresh(snapshot)
     return snapshot
+
+
+def create_wellbeing_entry_raw(db: Session, payload: dict) -> WellbeingEntry:
+    # payload is a dict with all fields including user_id and derived fields
+    entry = WellbeingEntry(
+        user_id=payload.get("user_id"),
+        mood_score=payload.get("mood_score"),
+        sleep_hours=payload.get("sleep_hours"),
+        academic_load=payload.get("academic_load"),
+        energy_fatigue=payload.get("energy_fatigue"),
+        registration_regular=payload.get("registration_regular"),
+        recent_change_vs_average=payload.get("recent_change_vs_average"),
+        trend_7d=payload.get("trend_7d"),
+        trend_14d=payload.get("trend_14d"),
+        is_synthetic=payload.get("is_synthetic", False),
+        recorded_at=payload.get("recorded_at"),
+    )
+    db.add(entry)
+    db.commit()
+    db.refresh(entry)
+    return entry

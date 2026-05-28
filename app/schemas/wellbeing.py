@@ -37,6 +37,20 @@ class WellbeingEntryRead(WellbeingEntryBase):
     recorded_at: datetime
 
 
+class WellbeingEntryImport(BaseModel):
+    user_id: int
+    mood_score: int = Field(ge=1, le=5)
+    sleep_hours: float = Field(ge=0, le=24)
+    academic_load: int = Field(ge=1, le=5)
+    energy_fatigue: int = Field(ge=1, le=5)
+    registration_regular: int = Field(ge=1, le=5)
+    recent_change_vs_average: float = Field(ge=-5, le=5)
+    trend_7d: float = Field(ge=-5, le=5)
+    trend_14d: float = Field(ge=-5, le=5)
+    is_synthetic: bool = False
+    recorded_at: datetime | None = None
+
+
 class ModelInputSnapshotRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
