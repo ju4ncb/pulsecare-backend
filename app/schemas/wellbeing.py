@@ -4,6 +4,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class WellbeingEntryBase(BaseModel):
+    # Fields that are stored and/or derived for the model snapshot
     mood_score: int = Field(ge=1, le=5)
     sleep_hours: float = Field(ge=0, le=24)
     academic_load: int = Field(ge=1, le=5)
@@ -14,8 +15,17 @@ class WellbeingEntryBase(BaseModel):
     trend_14d: float = Field(ge=-5, le=5)
 
 
-class WellbeingEntryCreate(WellbeingEntryBase):
-    pass
+# Input payload expected from the frontend when creating a wellbeing entry.
+# The backend computes `registration_regular`, `recent_change_vs_average`,
+# `trend_7d` and `trend_14d` automatically, so they are not part of the
+# client payload.
+class WellbeingEntryCreate(BaseModel):
+    mood_score: int = Field(ge=1, le=5)
+    sleep_hours: float = Field(ge=0, le=24)
+    academic_load: int = Field(ge=1, le=5)
+    energy_fatigue: int = Field(ge=1, le=5)
+    is_synthetic: bool = False
+    recorded_at: datetime | None = None
 
 
 class WellbeingEntryRead(WellbeingEntryBase):

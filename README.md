@@ -211,6 +211,10 @@ Respuestas:
 - `400 Bad Request`: validación fallida.
 - `401 Unauthorized`: token ausente o inválido.
 
+Nota importante sobre campos derivados:
+
+- Los campos `registration_regular`, `recent_change_vs_average`, `trend_7d` y `trend_14d` son calculados por el backend a partir del historial del usuario. El frontend NO debe enviarlos en el `POST /api/wellbeing/entries` — sólo debe enviar los valores crudos: `mood_score`, `sleep_hours`, `academic_load`, `energy_fatigue`, `is_synthetic` y opcionalmente `recorded_at`.
+
 #### `GET /api/wellbeing/entries/{entry_id}`
 
 Devuelve un registro de bienestar del usuario autenticado.
@@ -315,6 +319,27 @@ Respuestas:
 - Los endpoints protegidos requieren el header `Authorization: Bearer <token>`.
 - El rol `Admin` corresponde a `id_role = 2`.
 - Antes de entrenar el modelo, deben existir `risk_labels` y `model_input_snapshots` asociados a los registros de bienestar.
+
+## Administración y utilidades (scripts)
+
+En el directorio `scripts/` hay utilidades para administración y pruebas:
+
+- `scripts/reset_database.py`: reinicia la base de datos SQLite (borra o recrea esquema) y crea los roles iniciales y el usuario administrador por defecto `admin@pulsecare.com` / `adminpassword`.
+- `scripts/delete_records.py`: utilitario CLI para eliminar de forma segura un `--entry-id` o `--user-id` borrando dependencias en el orden correcto.
+- `scripts/seed_synthetic_data.py`: inserta datos sintéticos para pruebas (`/seed-synthetic-data` usa este script).
+- `scripts/delete_synthetic_data.py`: borra los datos sintéticos, ahora utilizando borrado seguro de dependencias.
+
+Ejemplos:
+
+```powershell
+& .\.venv\Scripts\python.exe scripts\reset_database.py
+& .\.venv\Scripts\python.exe scripts\delete_records.py --entry-id 1
+& .\.venv\Scripts\python.exe scripts\delete_records.py --user-id 3
+```
+
+## CORS
+
+El backend permite por defecto `http://localhost:5173` y `http://127.0.0.1:5173` (útil para Vite/React locales) y orígenes `https://*.onrender.com` para frontends desplegados en Render.
 
 ## Scripts útiles
 
