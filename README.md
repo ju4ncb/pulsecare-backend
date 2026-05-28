@@ -2,6 +2,20 @@
 
 Este es el repositorio del backend de PulseCare, una aplicación diseñada para monitorear y mejorar la salud cardiovascular de los usuarios. El backend está construido utilizando FastAPI, TensorFlow, y otras tecnologías para alojar la capa de inteligencia artificial y gestionar las operaciones del servidor.
 
+## Configuración por variables de entorno
+
+La conexión a la base de datos usa solo SQLite y se define con `DB_PATH` en `.env`.
+
+Ejemplo básico para desarrollo local:
+
+```env
+SECRET_KEY=change-this-secret-in-production
+ALGORITHM=HS256
+DB_PATH=./pulsecare.db
+```
+
+Si cambias la ruta, el backend construye automáticamente la URL SQLite con ese archivo.
+
 ## Modelo de Datos
 
 Tablas:
