@@ -1,4 +1,5 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from typing import List
 from sqlalchemy.orm import Session
 
 from app.ai import create_training_run, inspect_artifact, load_trained_model, predict_risk_probability, train_and_store_run, train_risk_classifier
@@ -108,6 +109,15 @@ def get_training_run(run_id: int, db: Session = Depends(get_db), current_user: U
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entrenamiento no encontrado")
 
     return _serialize_training_run(run)
+
+
+@router.get("/train", response_model=List[TrainingRunRead])
+def list_training_runs(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> list[TrainingRunRead]:
+    if not is_admin(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required to inspect training runs")
+
+    runs = db.query(TrainingRun).order_by(TrainingRun.id.desc()).all()
+    return [_serialize_training_run(r) for r in runs]
 
 
 @router.get("/predict/{entry_id}", response_model=PredictionRead)

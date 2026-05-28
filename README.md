@@ -84,11 +84,14 @@ Tablas:
 
 ### Estado general
 
-| Método | Ruta                   | Descripción                                                             | Acceso  |
-| ------ | ---------------------- | ----------------------------------------------------------------------- | ------- |
-| GET    | `/`                    | Verifica que el servicio esté activo.                                   | Público |
-| GET    | `/health`              | Healthcheck de la API.                                                  | Público |
-| GET    | `/insert-initial-data` | Inserta roles iniciales (`Estudiante`, `Admin`) si la tabla está vacía. | Público |
+| Método | Ruta                     | Descripción                                                             | Acceso  |
+| ------ | ------------------------ | ----------------------------------------------------------------------- | ------- |
+| GET    | `/`                      | Verifica que el servicio esté activo.                                   | Público |
+| GET    | `/health`                | Healthcheck de la API.                                                  | Público |
+| GET    | `/insert-initial-data`   | Inserta roles iniciales (`Estudiante`, `Admin`) si la tabla está vacía. | Público |
+| GET    | `/manage-synthetic-data` | Inserta o elimina datos sintéticos para pruebas.                        | Público |
+| GET    | `/seed-synthetic-data`   | Inserta datos sintéticos para pruebas.                                  | Público |
+| GET    | `/delete-synthetic-data` | Elimina los datos sintéticos insertados.                                | Público |
 
 ### Autenticación
 

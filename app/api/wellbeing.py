@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List
 from sqlalchemy.orm import Session
 
 from app.api.auth import get_current_user
@@ -48,6 +49,20 @@ def read_wellbeing_entry(
     if entry is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Registro no encontrado")
     return entry
+
+
+@router.get("/entries", response_model=List[WellbeingEntryRead])
+def list_wellbeing_entries(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[WellbeingEntry]:
+    entries = (
+        db.query(WellbeingEntry)
+        .filter(WellbeingEntry.user_id == current_user.id)
+        .order_by(WellbeingEntry.id.desc())
+        .all()
+    )
+    return entries
 
 
 @router.post("/entries/{entry_id}/label", response_model=RiskLabelRead, status_code=status.HTTP_201_CREATED)
