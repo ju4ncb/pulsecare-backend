@@ -19,6 +19,7 @@ from app.models.user import Role, User
 
 DEFAULT_ADMIN_EMAIL = "admin@pulsecare.com"
 DEFAULT_ADMIN_PASSWORD = "adminpassword"
+DEFAULT_ADMIN_NAME = "Admin PulseCare"
 
 
 def _sqlite_path() -> Path | None:
@@ -31,7 +32,7 @@ def _sqlite_path() -> Path | None:
     return (PROJECT_ROOT / settings.db_path).resolve()
 
 
-def reset_database(admin_email: str = DEFAULT_ADMIN_EMAIL, admin_password: str = DEFAULT_ADMIN_PASSWORD) -> None:
+def reset_database(admin_email: str = DEFAULT_ADMIN_EMAIL, admin_password: str = DEFAULT_ADMIN_PASSWORD, admin_name: str = DEFAULT_ADMIN_NAME) -> None:
     db_path = _sqlite_path()
     if db_path is not None and db_path.exists():
         try:
@@ -53,6 +54,7 @@ def reset_database(admin_email: str = DEFAULT_ADMIN_EMAIL, admin_password: str =
             id_role=admin_role.id,
             email=admin_email.strip().lower(),
             hashed_password=get_password_hash(admin_password),
+            name=admin_name,
             is_active=True,
         )
         session.add(admin_user)
@@ -68,9 +70,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Reset SQLite database and create the initial admin user")
     parser.add_argument("--admin-email", default=DEFAULT_ADMIN_EMAIL, help="Email for the initial admin user")
     parser.add_argument("--admin-password", default=DEFAULT_ADMIN_PASSWORD, help="Password for the initial admin user")
+    parser.add_argument("--admin-name", default=DEFAULT_ADMIN_NAME, help="Name for the initial admin user")
     args = parser.parse_args()
 
-    reset_database(admin_email=args.admin_email, admin_password=args.admin_password)
+    reset_database(admin_email=args.admin_email, admin_password=args.admin_password, admin_name=args.admin_name)
     print(f"Base de datos reiniciada y usuario inicial creado: {args.admin_email}")
     return 0
 

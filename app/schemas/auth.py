@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
+    name: str = Field(min_length=2, max_length=255)
 
 
 class LoginRequest(BaseModel):
@@ -22,6 +23,8 @@ class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    id_role: int
     email: EmailStr
+    name: str
     is_active: bool
     created_at: datetime

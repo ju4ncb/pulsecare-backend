@@ -52,6 +52,7 @@ def register_user(payload: RegisterRequest, db: Session = Depends(get_db)) -> Us
     new_user = User(
         email=_normalize_email(payload.email),
         hashed_password=get_password_hash(payload.password),
+        name=payload.name,
     )
 
     db.add(new_user)

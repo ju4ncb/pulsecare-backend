@@ -13,6 +13,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     id_role: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False, default=1)  # 1: Estudiante, 2: Admin
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False) # john@doe.com
+    name: Mapped[str] = mapped_column(String(255), nullable=False) # John Doe
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False) # hashed con PBKDF2
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False) # para soft delete o desactivación de cuenta
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False) # timestamp de creación
