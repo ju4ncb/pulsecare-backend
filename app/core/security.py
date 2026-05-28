@@ -7,11 +7,12 @@ import os
 from jose import JWTError, jwt
 
 from app.core.config import settings
+from app.models.user import User
 
 PBKDF2_ALGORITHM = "sha256"
 PBKDF2_ITERATIONS = 390000
 
-
+# Función para verificar contraseña, compatible con el formato de hash generado por get_password_hash
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     try:
         scheme, iterations, salt_b64, hash_b64 = hashed_password.split("$", maxsplit=3)
@@ -30,7 +31,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     except (ValueError, TypeError):
         return False
 
-
+# Función para generar hash de contraseña utilizando PBKDF2 con SHA-256
 def get_password_hash(password: str) -> str:
     salt = os.urandom(16)
     pwd_hash = hashlib.pbkdf2_hmac(
@@ -45,15 +46,18 @@ def get_password_hash(password: str) -> str:
         pwd_hash=base64.b64encode(pwd_hash).decode("utf-8"),
     )
 
-
+# Función para crear un token JWT con un sujeto y una expiración opcional
 def create_access_token(subject: str, expires_delta: timedelta | None = None) -> str:
     expire = datetime.now(UTC) + (expires_delta or timedelta(minutes=settings.access_token_expire_minutes))
     payload = {"sub": subject, "exp": expire}
     return jwt.encode(payload, settings.secret_key, algorithm=settings.algorithm)
 
-
+# Función para decodificar un token JWT y obtener su payload, lanzando un error si el token no es válido
 def decode_token(token: str) -> dict:
     try:
         return jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
     except JWTError as exc:
         raise ValueError("Invalid token") from exc
+
+def is_admin(user: User) -> bool:
+    return getattr(user, "id_role", None) == 2

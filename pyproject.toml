@@ -16,4 +16,5 @@ dependencies = [
   "python-jose[cryptography]",
   "passlib[bcrypt]",
   "email-validator",
+  "scikit-learn",
 ]
