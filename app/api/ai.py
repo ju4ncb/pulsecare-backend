@@ -130,6 +130,39 @@ def predict_post(entry_id: int, db: Session = Depends(get_db), current_user: Use
     return _predict_entry(entry_id, db, current_user)
 
 
+@router.get("/validate", response_model=TrainingResultRead)
+def validate_model(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if not is_admin(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required to validate model")
+
+    # perform evaluation of the trained model on the supervised dataset
+    from app.ai.training import load_supervised_dataset
+    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, classification_report
+
+    features, labels = load_supervised_dataset(db)
+    if len(features) == 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No labeled data available for validation")
+
+    try:
+        model = load_trained_model()
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+    y_pred = model.predict(features)
+
+    metrics = TrainingResultRead(
+        sample_count=len(features),
+        accuracy=float(accuracy_score(labels, y_pred)),
+        precision=float(precision_score(labels, y_pred, average="weighted", zero_division=0)),
+        recall=float(recall_score(labels, y_pred, average="weighted", zero_division=0)),
+        f1=float(f1_score(labels, y_pred, average="weighted", zero_division=0)),
+        confusion_matrix=confusion_matrix(labels, y_pred).tolist(),
+        classification_report=classification_report(labels, y_pred, output_dict=True, zero_division=0),
+    )
+
+    return metrics
+
+
 @router.get("/artifact", response_model=ArtifactInspectionRead)
 def inspect_training_artifact(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     if not is_admin(current_user):

@@ -17,7 +17,7 @@ from app.models.user import Role, User
 from app.models.wellbeing import RiskLabel, WellbeingEntry
 
 
-SYNTHETIC_EMAIL = "synthetic.data@pulsecare.local"
+SYNTHETIC_EMAIL = "syntheticdata@pulsecare.com"
 
 
 def clamp(value: float, minimum: float, maximum: float) -> float:
