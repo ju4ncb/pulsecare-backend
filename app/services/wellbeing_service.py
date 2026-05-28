@@ -34,19 +34,19 @@ def _compute_slope(values: List[float]) -> float:
 
 def create_wellbeing_entry(db: Session, user: User, payload: WellbeingEntryCreate) -> WellbeingEntry:
     now = datetime.utcnow()
-    recorded_at = payload.recorded_at or now
+    created_at = payload.created_at or now
 
     # look back 30 days for registration regularity and average
-    since_30 = recorded_at - timedelta(days=30)
+    since_30 = created_at - timedelta(days=30)
     entries_30 = (
         db.query(WellbeingEntry)
-        .filter(WellbeingEntry.user_id == user.id, WellbeingEntry.recorded_at >= since_30)
-        .order_by(WellbeingEntry.recorded_at.asc())
+        .filter(WellbeingEntry.user_id == user.id, WellbeingEntry.created_at >= since_30)
+        .order_by(WellbeingEntry.created_at.asc())
         .all()
     )
 
     # days registered in last 30 days
-    days = {e.recorded_at.date() for e in entries_30}
+    days = {e.created_at.date() for e in entries_30}
     days_registered = len(days)
     ratio = days_registered / 30.0
     registration_regular = _scale_registration(ratio)
@@ -60,8 +60,8 @@ def create_wellbeing_entry(db: Session, user: User, payload: WellbeingEntryCreat
 
     # trend 7d and 14d: compute slope over mood_score
     def _fetch_values(days_back: int):
-        since = recorded_at - timedelta(days=days_back)
-        vals = [e.mood_score for e in db.query(WellbeingEntry).filter(WellbeingEntry.user_id == user.id, WellbeingEntry.recorded_at >= since).order_by(WellbeingEntry.recorded_at.asc()).all()]
+        since = created_at - timedelta(days=days_back)
+        vals = [e.mood_score for e in db.query(WellbeingEntry).filter(WellbeingEntry.user_id == user.id, WellbeingEntry.created_at >= since).order_by(WellbeingEntry.created_at.asc()).all()]
         # include current value as the latest observation
         vals.append(payload.mood_score)
         return vals
@@ -83,7 +83,7 @@ def create_wellbeing_entry(db: Session, user: User, payload: WellbeingEntryCreat
         trend_7d=trend_7,
         trend_14d=trend_14,
         is_synthetic=payload.is_synthetic,
-        recorded_at=recorded_at,
+        created_at=created_at,
     )
 
     db.add(entry)
@@ -113,7 +113,7 @@ def create_wellbeing_entry_raw(db: Session, payload: dict) -> WellbeingEntry:
         trend_7d=payload.get("trend_7d"),
         trend_14d=payload.get("trend_14d"),
         is_synthetic=payload.get("is_synthetic", False),
-        recorded_at=payload.get("recorded_at"),
+        created_at=payload.get("created_at"),
     )
     db.add(entry)
     db.commit()

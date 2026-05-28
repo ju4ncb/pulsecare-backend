@@ -25,7 +25,7 @@ class WellbeingEntryCreate(BaseModel):
     academic_load: int = Field(ge=1, le=5)
     energy_fatigue: int = Field(ge=1, le=5)
     is_synthetic: bool = False
-    recorded_at: datetime | None = None
+    created_at: datetime | None = None
 
 
 class WellbeingEntryRead(WellbeingEntryBase):
@@ -34,7 +34,7 @@ class WellbeingEntryRead(WellbeingEntryBase):
     id: int
     user_id: int
     is_synthetic: bool
-    recorded_at: datetime
+    created_at: datetime
 
 
 class WellbeingEntryImport(BaseModel):
@@ -48,7 +48,7 @@ class WellbeingEntryImport(BaseModel):
     trend_7d: float = Field(ge=-5, le=5)
     trend_14d: float = Field(ge=-5, le=5)
     is_synthetic: bool = False
-    recorded_at: datetime | None = None
+    created_at: datetime | None = None
 
 
 class ModelInputSnapshotRead(BaseModel):

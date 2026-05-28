@@ -111,7 +111,7 @@ def seed_synthetic_data(count: int, seed: int) -> None:
         for index in range(count):
             phase = index % 3
             values = generate_phase_values(phase, rng)
-            recorded_at = start_date + timedelta(days=index)
+            created_at = start_date + timedelta(days=index)
 
             entry = WellbeingEntry(
                 user_id=user.id,
@@ -124,7 +124,7 @@ def seed_synthetic_data(count: int, seed: int) -> None:
                 trend_7d=float(round(values["trend_7d"], 2)),
                 trend_14d=float(round(values["trend_14d"], 2)),
                 is_synthetic=True,
-                recorded_at=recorded_at,
+                created_at=created_at,
             )
             session.add(entry)
             session.flush()
@@ -167,7 +167,7 @@ def generate_synthetic_payloads(count: int, seed: int) -> list[dict]:
         for index in range(count):
             phase = index % 3
             values = generate_phase_values(phase, rng)
-            recorded_at = start_date + timedelta(days=index)
+            created_at = start_date + timedelta(days=index)
 
             payloads.append(
                 {
@@ -181,7 +181,7 @@ def generate_synthetic_payloads(count: int, seed: int) -> list[dict]:
                     "trend_7d": float(round(values["trend_7d"], 2)),
                     "trend_14d": float(round(values["trend_14d"], 2)),
                     "is_synthetic": True,
-                    "recorded_at": recorded_at,
+                    "created_at": created_at,
                     "risk_level": int(values["risk_level"]),
                     "label_source": "synthetic_seed",
                     "label_note": "Generado por script de datos sinteticos",

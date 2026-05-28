@@ -20,7 +20,7 @@ class WellbeingEntry(Base):
     trend_7d: Mapped[float] = mapped_column(Float, nullable=False) # Tendencia en los últimos 7 días, valor decimal entre -5 y 5
     trend_14d: Mapped[float] = mapped_column(Float, nullable=False) # Tendencia en los últimos 14 días, valor decimal entre -5 y 5
     is_synthetic: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    recorded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False) # Timestamp de registro
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False) # Timestamp de registro
 
     user = relationship("User", back_populates="wellbeing_entries", passive_deletes=True) # Relación con usuario, permite acceder a los datos del usuario desde la entrada de bienestar
     model_input = relationship("ModelInputSnapshot", back_populates="entry", uselist=False, cascade="all, delete-orphan", passive_deletes=True) # Relación uno a uno con ModelInputSnapshot, permite acceder a los datos de entrada del modelo desde la entrada de bienestar
