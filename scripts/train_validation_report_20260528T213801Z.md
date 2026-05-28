@@ -1,4 +1,4 @@
-# Entrenamiento y validación - 2026-05-28T21:08:18.223627+00:00
+# Entrenamiento y validación - 2026-05-28T21:38:01.267645+00:00
 
 ## Resultado de entrenamiento (test split)
 - Muestras totales usadas: 90
