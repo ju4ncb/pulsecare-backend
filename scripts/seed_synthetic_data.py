@@ -59,41 +59,44 @@ def ensure_synthetic_user(session, student_role: Role) -> User:
 
 def generate_phase_values(phase: int, rng: random.Random) -> dict[str, float]:
     if phase == 0:
+        # Bajo riesgo: sueño estable, carga baja y buena energía
         return {
-            "mood_score": clamp(rng.gauss(5.0, 0.6), 1, 5),
-            "sleep_hours": clamp(rng.gauss(8.0, 0.7), 0, 24),
-            "academic_load": clamp(rng.gauss(2.0, 0.5), 1, 5),
-            "energy_fatigue": clamp(rng.gauss(5.0, 0.5), 1, 5),
-            "registration_regular": clamp(rng.gauss(5.0, 0.3), 1, 5),
-            "recent_change_vs_average": clamp(rng.gauss(0.8, 0.4), -5, 5),
-            "trend_7d": clamp(rng.gauss(0.6, 0.3), -5, 5),
-            "trend_14d": clamp(rng.gauss(0.5, 0.3), -5, 5),
-            "risk_level": 0,
+            "mood_score": clamp(rng.gauss(4.4, 0.5), 1, 5),
+            "sleep_hours": clamp(rng.gauss(7.8, 0.6), 0, 24),
+            "academic_load": clamp(rng.gauss(1.8, 0.6), 1, 5),
+            "energy_fatigue": clamp(rng.gauss(4.6, 0.4), 1, 5),
+            "registration_regular": clamp(rng.gauss(4.7, 0.4), 1, 5),
+            "recent_change_vs_average": clamp(rng.gauss(0.7, 0.4), -5, 5),
+            "trend_7d": clamp(rng.gauss(0.5, 0.3), -5, 5),
+            "trend_14d": clamp(rng.gauss(0.6, 0.3), -5, 5),
+            "risk_level": 2,
         }
 
     if phase == 1:
+        # Riesgo medio: señales mixtas, sueño y carga variables
         return {
-            "mood_score": clamp(rng.gauss(3.2, 0.6), 1, 5),
-            "sleep_hours": clamp(rng.gauss(6.5, 0.8), 0, 24),
-            "academic_load": clamp(rng.gauss(3.5, 0.6), 1, 5),
-            "energy_fatigue": clamp(rng.gauss(3.2, 0.6), 1, 5),
-            "registration_regular": clamp(rng.gauss(3.5, 0.5), 1, 5),
-            "recent_change_vs_average": clamp(rng.gauss(-0.3, 0.4), -5, 5),
-            "trend_7d": clamp(rng.gauss(-0.2, 0.4), -5, 5),
-            "trend_14d": clamp(rng.gauss(-0.3, 0.4), -5, 5),
+            "mood_score": clamp(rng.gauss(3.0, 0.6), 1, 5),
+            "sleep_hours": clamp(rng.gauss(6.0, 1.1), 0, 24),
+            "academic_load": clamp(rng.gauss(3.4, 0.6), 1, 5),
+            "energy_fatigue": clamp(rng.gauss(3.0, 0.6), 1, 5),
+            "registration_regular": clamp(rng.gauss(3.0, 0.6), 1, 5),
+            "recent_change_vs_average": clamp(rng.gauss(-0.2, 0.5), -5, 5),
+            "trend_7d": clamp(rng.gauss(-0.1, 0.4), -5, 5),
+            "trend_14d": clamp(rng.gauss(-0.1, 0.4), -5, 5),
             "risk_level": 1,
         }
 
+    # Alto riesgo: muy poco sueño o sueño excesivo, carga alta y fatiga alta
     return {
-        "mood_score": clamp(rng.gauss(2.0, 0.7), 1, 5),
-        "sleep_hours": clamp(rng.gauss(5.0, 1.0), 0, 24),
-        "academic_load": clamp(rng.gauss(4.5, 0.4), 1, 5),
-        "energy_fatigue": clamp(rng.gauss(2.0, 0.6), 1, 5),
-        "registration_regular": clamp(rng.gauss(2.0, 0.6), 1, 5),
-        "recent_change_vs_average": clamp(rng.gauss(-1.2, 0.5), -5, 5),
-        "trend_7d": clamp(rng.gauss(-1.0, 0.5), -5, 5),
-        "trend_14d": clamp(rng.gauss(-1.1, 0.5), -5, 5),
-        "risk_level": 2,
+        "mood_score": clamp(rng.gauss(1.8, 0.5), 1, 5),
+        "sleep_hours": clamp(rng.choice([rng.gauss(2.7, 0.4), rng.gauss(13.2, 0.8)]), 0, 24),
+        "academic_load": clamp(rng.gauss(4.8, 0.3), 1, 5),
+        "energy_fatigue": clamp(rng.gauss(1.7, 0.5), 1, 5),
+        "registration_regular": clamp(rng.gauss(1.4, 0.4), 1, 5),
+        "recent_change_vs_average": clamp(rng.gauss(-1.6, 0.5), -5, 5),
+        "trend_7d": clamp(rng.gauss(-1.2, 0.4), -5, 5),
+        "trend_14d": clamp(rng.gauss(-1.4, 0.4), -5, 5),
+        "risk_level": 0,
     }
 
 
