@@ -9,6 +9,7 @@ from app.api.auth import router as auth_router
 from app.api.wellbeing import router as wellbeing_router
 from app.api.ai import router as ai_router
 from app.core.database import init_db
+from app.core.security import get_password_hash
 
 
 @asynccontextmanager
@@ -43,37 +44,57 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 @app.get("/insert-initial-data")
-def insert_initial_data() -> dict[str, str]:
+def insert_initial_data() -> HTMLResponse:
     from app.core.database import SessionLocal
-    from app.models.user import Role
+    from app.models.user import Role, User
+
+    admin_email = "admin@pulsecare.com"
+    admin_password = "adminpassword"
 
     db = SessionLocal()
     try:
         # Insertar roles iniciales si no existen
         if db.query(Role).count() == 0:
-            db.add_all([
-                Role(name="Estudiante"),
-                Role(name="Admin"),
-            ])
+            student_role = Role(name="Estudiante")
+            admin_role = Role(name="Admin")
+            db.add_all([student_role, admin_role])
             db.commit()
         else:
-            return HTMLResponse(
-                """
-                    <h1>Datos iniciales ya insertados</h1>
-                    <p>Los roles iniciales ya existen en la base de datos. No se realizaron cambios.</p>
-                    <a href="/">Volver al inicio</a>
-                """
+            admin_role = db.query(Role).filter(Role.name == "Admin").first()
+            if admin_role is None:
+                admin_role = Role(name="Admin")
+                db.add(admin_role)
+                db.commit()
+                db.refresh(admin_role)
+
+        admin_user = db.query(User).filter(User.email == admin_email).first()
+        if admin_user is None:
+            admin_role = db.query(Role).filter(Role.name == "Admin").first()
+            if admin_role is None:
+                admin_role = Role(name="Admin")
+                db.add(admin_role)
+                db.commit()
+                db.refresh(admin_role)
+
+            admin_user = User(
+                id_role=admin_role.id,
+                email=admin_email,
+                hashed_password=get_password_hash(admin_password),
+                is_active=True,
             )
+            db.add(admin_user)
+            db.commit()
+
+        return HTMLResponse(
+            """
+                <h1>Datos iniciales insertados</h1>
+                <p>Se han verificado los roles iniciales y el usuario administrador.</p>
+                <p>Usuario creado o confirmado: <strong>admin@pulsecare.com</strong></p>
+                <a href="/">Volver al inicio</a>
+            """
+        )
     finally:
         db.close()
-
-    return HTMLResponse(
-        """
-            <h1>Datos iniciales insertados</h1>
-            <p>Se han insertado los roles iniciales en la base de datos.</p>
-            <a href="/">Volver al inicio</a>
-        """
-    )
 
 
 def _render_synthetic_entries_page(entries: list[object], message: str | None = None) -> HTMLResponse:

@@ -17,7 +17,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False) # para soft delete o desactivación de cuenta
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False) # timestamp de creación
     
-    wellbeing_entries = relationship("WellbeingEntry", back_populates="user", cascade="all, delete-orphan") # relación uno a muchos con registros de bienestar
+    wellbeing_entries = relationship("WellbeingEntry", back_populates="user", cascade="all, delete-orphan", passive_deletes=True) # relación uno a muchos con registros de bienestar
     role = relationship("Role", back_populates="users") # relación con Role, permite acceder a los datos del rol desde el usuario
 
 class Role(Base):
