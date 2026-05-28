@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+identificacion_problema_solucion_propuesta.md
+plan_mejora.md
+pulsecare.db
